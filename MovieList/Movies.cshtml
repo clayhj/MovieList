@@ -1,0 +1,53 @@
+﻿@{
+    Page.Title = "List Movies";
+    Layout = "~/_Layout.cshtml";
+
+    var db = Database.OpenConnectionString("Data Source=|DataDirectory|\\MoviesList.sdf", "System.Data.SqlServerCe.4.0"); ;
+    var selectCommand = "SELECT * FROM Movies";
+    var searchTitle = "";
+
+
+
+    if (!Request.QueryString["searcTitle"].IsEmpty())
+    {
+        
+            selectCommand = "SELECT * FROM Movies WHERE Title LIKE @0";
+        searchTitle = "%" + Request["searchTitle"] + "%";
+    }
+
+    var selectedData = db.Query(selectCommand, searchTitle);
+    var grid = new WebGrid(source: selectedData, defaultSort: "Rank", rowsPerPage: 5);
+
+}
+
+
+<h2>Movie List</h2>
+
+<form method="get">
+    <div>
+        <label for="searchTitle">Movie Title:</label>
+        <input type="text" name="searchTitle" value="@Request.QueryString["searchTitle"]" />
+        <input type="Submit" value="Search Title" /><br />
+    </div>
+</form>
+
+<div class="grid">
+    @grid.GetHtml(
+    tableStyle: "grid",
+    headerStyle: "head",
+    alternatingRowStyle: "alt",
+    columns: grid.Columns(
+        grid.Column(format: @<a href="~/EditMovie?id=@item.Id">Edit</a>),
+        grid.Column("Title", canSort: false),
+        grid.Column("RankCJ", canSort: false, header: "CJ's Rank"),
+        grid.Column("RankShan", canSort: false, header: "Shan's Rank"),
+        grid.Column("Rank", header: "Total Rank"),
+        grid.Column("Date", header: "Date Added", canSort: false),
+        grid.Column(format: @<a href="~/DeleteMovie?id=@item.Id">Delete</a>)
+    )
+)
+</div>
+
+<p>
+    <a href="~/AddMovie">Add Movie</a>
+</p>

@@ -1,0 +1,60 @@
+﻿@{
+
+    Page.Title = "Add Movie";
+    Layout = "~/_Layout.cshtml";
+
+
+    Validation.RequireField("title", "You must enter a movie title");
+    Validation.RequireField("rankCJ", "You must enter a rank for CJ");
+    Validation.RequireField("rankCJ", "You must enter a rank for Shan");
+
+    var title = "";
+    int rank;
+    int rankCJ;
+    int rankShan;
+
+    if (IsPost && Validation.IsValid())
+    {
+        title = Request.Form["title"];
+        rankCJ = Request.Form["rankCJ"].AsInt();
+        rankShan = Request.Form["rankShan"].AsInt();
+        rank = rankCJ + rankShan;
+
+        var db = Database.OpenConnectionString("Data Source=|DataDirectory|\\MoviesList.sdf", "System.Data.SqlServerCe.4.0");
+        var insertCommand = "INSERT INTO Movies (Title, RankCJ, RankShan, Rank) VALUES(@0, @1, @2, @3)";
+        db.Execute(insertCommand, title, rankCJ, rankShan, rank);
+        Response.Redirect("~/Movies");
+    }
+}
+
+
+
+<h2>Add Movie</h2>
+@Html.ValidationSummary()
+<p><a href="~/Movies">Return to Movies</a></p>
+
+<form method="post">
+
+    <fieldset>
+        <legend>Scripture Information</legend>
+        <p>
+            <label for="title">Title:</label>
+            <input type="text" name="title" maxlength="100" value="@Request.Form["title"]" />
+            @Html.ValidationMessage("title")
+        </p>
+
+        <p>
+            <label for="rankCJ">CJ's Rank:</label>
+            <input type="number" name="rankCJ" min="1" max="20" value="@Request.Form["rankCJ"]" />
+            @Html.ValidationMessage("rankCJ")
+        </p>
+
+        <p>
+            <label for="rankShan">Shan's Rank:</label>
+            <input type="number" name="rankShan" min="1" max="20" value="@Request.Form["rankShan"]" />
+            @Html.ValidationMessage("rankShan")
+        </p>
+
+        <p><input type="submit" name="buttonSubmit" value="Add Movie" /></p>
+    </fieldset>
+</form>

@@ -1,0 +1,87 @@
+﻿@{
+
+    Page.Title = "Edit Movie";
+    Layout = "~/_Layout.cshtml";
+
+    var title = "";
+    int rank = 0;
+    int rankCJ = 0;
+    int rankShan = 0;
+    var movieId = "";
+
+    if (!IsPost)
+    {
+        if (!Request.QueryString["Id"].IsEmpty() && Request.QueryString["Id"].IsInt())
+        {
+            movieId = Request.QueryString["Id"];
+            var db = Database.OpenConnectionString("Data Source=|DataDirectory|\\MoviesList.sdf", "System.Data.SqlServerCe.4.0");
+            var dbCommand = "SELECT * FROM Movies WHERE Id = @0";
+            var row = db.QuerySingle(dbCommand, movieId);
+            if (row != null)
+            {
+                title = row.Title;
+                rankCJ = row.RankCJ;
+                rankShan = row.RankShan;
+            }
+            else
+            {
+                Validation.AddFormError("No movie was found for that ID.");
+            }
+        }
+        else
+        {
+            Validation.AddFormError("No movie was selected.");
+        }
+    }
+
+    if (IsPost)
+    {
+        Validation.RequireField("title", "You must enter a movie title");
+        Validation.RequireField("rankCJ", "You must enter a rank for CJ");
+        Validation.RequireField("rankShan", "You must enter a rank for Shan");
+        Validation.RequireField("movieid", "No scripture ID was submitted!");
+
+        title = Request.Form["title"];
+        rankCJ = Request.Form["rankCJ"].AsInt();
+        rankShan = Request.Form["rankShan"].AsInt();
+        rank = rankCJ + rankShan;
+        movieId = Request.Form["movieId"];
+
+        if (Validation.IsValid())
+        {
+            var db = Database.OpenConnectionString("Data Source=|DataDirectory|\\MoviesList.sdf", "System.Data.SqlServerCe.4.0");
+            var updateCommand = "UPDATE Movies SET Title=@0, RankCJ=@1, RankShan=@2, Rank=@3 WHERE Id=@4";
+            db.Execute(updateCommand, title, rankCJ, rankShan, rank, movieId);
+            Response.Redirect("~/Movies");
+        }
+    }
+}
+
+
+<h2>Edit Movie</h2>
+@Html.ValidationSummary()
+<p><a href="~/Movies">Return to Movies</a></p>
+<form method="post">
+    <fieldset>
+        <legend>Movie Information</legend>
+
+        <p>
+            <label for="title">Title:</label>
+            <input type="text" name="title" value="@title" />
+        </p>
+
+        <p>
+            <label for="rankCJ">CJ's Rank:</label>
+            <input type="number" min="1" max="20" name="rankCJ" value="@rankCJ" />
+        </p>
+
+        <p>
+            <label for="rankShan">Shan's Rank:</label>
+            <input type="number" min="1" max="20" name="rankShan" value="@rankShan" />
+        </p>
+
+        <input type="hidden" name="movieid" value="@movieId" />
+
+        <p><input type="submit" name="buttonSubmit" value="Submit Changes" /></p>
+    </fieldset>
+</form>

@@ -1,0 +1,89 @@
+﻿@{
+
+    Page.Title = "Delete Movie";
+    Layout = "~/_Layout.cshtml";
+
+
+    var title = "";
+    int rank = 0;
+    int rankCJ = 0;
+    int rankShan = 0;
+    var movieId = "";
+    DateTime? date = null;
+
+    if (!IsPost)
+    {
+        if (!Request.QueryString["Id"].IsEmpty() && Request.QueryString["Id"].IsInt())
+        {
+            movieId = Request.QueryString["Id"];
+            var db = Database.OpenConnectionString("Data Source=|DataDirectory|\\MoviesList.sdf", "System.Data.SqlServerCe.4.0");
+            var dbCommand = "SELECT * FROM Movies WHERE Id = @0";
+            var row = db.QuerySingle(dbCommand, movieId);
+            if (row != null)
+            {
+               title = row.Title;
+                rank = row.Rank;
+                rankCJ = row.RankCJ;
+                rankShan = row.RankShan;
+                date = row.Date;
+            }
+            else
+            {
+                Validation.AddFormError("No Movie was found for that ID.");
+            }
+        }
+        else
+        {
+            Validation.AddFormError("No Movie was found for that ID.");
+        }
+    }
+
+    if (IsPost && !Request["buttonDelete"].IsEmpty())
+    {
+        movieId = Request.Form["movieId"];
+        var db = Database.OpenConnectionString("Data Source=|DataDirectory|\\MoviesList.sdf", "System.Data.SqlServerCe.4.0");
+        var deleteCommand = "DELETE FROM Movies WHERE ID = @0";
+        db.Execute(deleteCommand, movieId);
+        Response.Redirect("~/Movies");
+    }
+}
+
+<h2>Delete Movie</h2>
+@Html.ValidationSummary()
+<p><a href="~/Movies">Return to Movies</a></p>
+
+<form method="post">
+    <div class="fieldsets">
+        <fieldset>
+            <legend>Movie Information</legend>
+
+            <p>
+                <span>Title:</span>
+                <span>@title</span>
+            </p>
+
+            <p>
+                <span>CJ's Rank:</span>
+                <span>@rankCJ</span>
+            </p>
+
+            <p>
+                <span>Shan's Rank:</span>
+                <span>@rankShan</span>
+            </p>
+
+            <p>
+                <span>Total Rank:</span>
+                <span>@rank</span>
+            </p>
+
+            <p>
+                <span>Date Added:</span>
+                <span>@date</span>
+            </p>
+
+            <input type="hidden" name="movieid" value="@movieId" />
+            <p><input type="submit" name="buttonDelete" value="Delete Movie" /></p>
+        </fieldset>
+    </div>
+</form>
