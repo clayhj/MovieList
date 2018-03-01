@@ -83,10 +83,10 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="WebMatrix.Data">
-      <HintPath>..\..\CIT365\WebMatrix.Data.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\CIT365\WebMatrix.Data.dll</HintPath>
     </Reference>
     <Reference Include="WebMatrix.WebData">
-      <HintPath>..\..\CIT365\WebMatrix.WebData.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\CIT365\WebMatrix.WebData.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
